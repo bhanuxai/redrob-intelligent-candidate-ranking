@@ -1,0 +1,13 @@
+__pycache__/
+
+*.pyc
+
+.env
+
+*.pkl
+
+*.npy
+
+models/
+
+outputs/
