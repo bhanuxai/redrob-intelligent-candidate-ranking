@@ -1,7 +1,18 @@
+import re
+from pathlib import Path
+
+import spacy
+from rapidfuzz import process
+
+from config import VALID_DEGREES
+
 class JDParser:
+    """
+    Parses Job Description into structured information.
+    """
 
     def __init__(self):
-        pass
+        self.nlp = spacy.load("en_core_web_sm")
 
     def load_jd(self):
         pass
