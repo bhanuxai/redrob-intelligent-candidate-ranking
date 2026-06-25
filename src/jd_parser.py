@@ -1,39 +1,47 @@
-import re
+"""
+Job Description Parser
+
+Converts a raw Job Description into structured metadata
+used by the ranking engine.
+"""
+
 from pathlib import Path
 
-import spacy
-from rapidfuzz import process
+from src.utils import clean_text
 
-from config import VALID_DEGREES
 
 class JDParser:
-    """
-    Parses Job Description into structured information.
-    """
 
     def __init__(self):
-        self.nlp = spacy.load("en_core_web_sm")
+        self.raw_text = ""
+        self.cleaned_text = ""
 
-    def load_jd(self):
-        pass
+    def load(self, file_path: str):
 
-    def clean_text(self):
-        pass
+        path = Path(file_path)
 
-    def extract_skills(self):
-        pass
+        self.raw_text = path.read_text(
+            encoding="utf-8"
+        )
 
-    def extract_experience(self):
-        pass
+        self.cleaned_text = clean_text(
+            self.raw_text
+        )
 
-    def extract_education(self):
-        pass
+        return self.cleaned_text
 
-    def extract_location(self):
-        pass
+    def parse(self, file_path: str):
 
-    def extract_work_mode(self):
-        pass
+        self.load(file_path)
 
-    def parse(self):
-        pass
+        return {
+            "role": None,
+            "mandatory_skills": [],
+            "preferred_skills": [],
+            "negative_signals": [],
+            "behavior_requirements": [],
+            "minimum_experience": None,
+            "maximum_experience": None,
+            "locations": [],
+            "work_mode": None,
+        }
