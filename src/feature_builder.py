@@ -10,6 +10,27 @@ from preprocess import (
     is_experience_suspicious
 )
 
+SKILL_SYNONYMS = {
+    "deep learning": ["dl", "deep-learning", "neural networks", "nn", "dnn"],
+    "machine learning": ["ml", "machine-learning"],
+    "natural language processing": ["nlp", "natural-language-processing"],
+    "large language models": ["llm", "llms", "large language model"],
+    "retrieval augmented generation": ["rag"],
+    "fine tuning": ["fine-tuning", "finetuning", "lora", "qlora"],
+    "computer vision": ["cv", "image recognition", "image classification"],
+    "speech recognition": ["asr", "speech-to-text", "stt"],
+    "text to speech": ["tts", "speech synthesis"],
+    "vector database": ["vector db", "faiss", "pinecone", "qdrant", "milvus", "weaviate"],
+    "transformers": ["bert", "gpt", "attention mechanism"],
+}
+
+def normalize_skill(skill):
+    skill = skill.lower().strip()
+    for canonical, synonyms in SKILL_SYNONYMS.items():
+        if skill in synonyms or skill == canonical:
+            return canonical
+    return skill
+
 def experience_score(candidate):
     years = get_years_of_experience(candidate)
     if 5 <= years <= 9:
@@ -64,6 +85,8 @@ def career_gap_score(candidate):
 def ai_skill_score(candidate):
     skills = get_skill_names(candidate)
     ai_count = count_ai_skills(skills)
+    normalized_skills = [normalize_skill(s) for s in skills]
+    ai_count = count_ai_skills(normalized_skills)
     if ai_count >= 10:
         return 1.0
     elif ai_count >= 8:
