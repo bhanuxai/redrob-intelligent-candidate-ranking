@@ -84,7 +84,6 @@ def career_gap_score(candidate):
 
 def ai_skill_score(candidate):
     skills = get_skill_names(candidate)
-    ai_count = count_ai_skills(skills)
     normalized_skills = [normalize_skill(s) for s in skills]
     ai_count = count_ai_skills(normalized_skills)
     if ai_count >= 10:
