@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from tqdm import tqdm
 
 AI_KEYWORDS = {
     "llm",
@@ -31,8 +32,9 @@ DATA_FILE = Path(__file__).parent.parent / "data" / "candidates.jsonl"
 
 def load_candidates(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
-        for line in f:
-            yield json.loads(line)
+        lines = f.readlines()
+    for line in tqdm(lines, desc="Loading candidates"):
+        yield json.loads(line)
 
 def clean_candidate(candidate):
     candidate.setdefault("skills", [])
@@ -117,7 +119,4 @@ def get_signal(candidate, signal_name, default=None):
 
 if __name__ == "__main__":
     for candidate in load_candidates(DATA_FILE):
-        candidate = clean_candidate(candidate)
-        github = get_signal(candidate,"github_activity_score",0)
-        print(github)
-        break
+        pass
