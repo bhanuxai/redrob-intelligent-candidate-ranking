@@ -1,13 +1,13 @@
-__pycache__/
+# Dataset
+data/raw/candidates.jsonl
+data/raw/*.gz
 
+# Python
+__pycache__/
 *.pyc
 
-.env
+# VS Code
+.vscode/
 
-*.pkl
-
-*.npy
-
-models/
-
+# Output
 outputs/

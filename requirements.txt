@@ -1,0 +1,9 @@
+python-docx
+sentence-transformers
+spacy
+faiss-cpu
+numpy
+pandas
+scikit-learn
+tqdm
+joblib
