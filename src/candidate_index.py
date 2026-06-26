@@ -12,13 +12,18 @@ OUTPUT_FILE = "data/candidate_index.pkl"
 
 def build_candidate_index():
     candidate_index = {}
-    for i, candidate in enumerate(load_candidates(DATA_FILE), start=1):
-        candidate = clean_candidate(candidate)
-        features = build_features(candidate)
-        candidate_id = candidate["candidate_id"]
-        candidate_index[candidate_id] = features
-        if i % 5000 == 0:
-            print(f"Processed {i} candidates...")
+    skipped = 0
+    for candidate in load_candidates(DATA_FILE):
+        try:
+            candidate = clean_candidate(candidate)
+            features = build_features(candidate)
+            candidate_id = candidate["candidate_id"]
+            candidate_index[candidate_id] = features
+        except Exception as e:
+            skipped += 1
+            continue
+    if skipped > 0:
+        print(f"Skipped {skipped} candidates due to errors")
     return candidate_index
 
 def save_candidate_index(candidate_index, output_file):
