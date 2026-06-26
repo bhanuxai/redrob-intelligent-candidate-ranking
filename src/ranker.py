@@ -11,6 +11,7 @@ from typing import Dict, List
 
 from src.scorer import CandidateScorer
 from src.behavior import BehaviorScorer
+from src.semantic_matcher import SemanticMatcher
 
 
 class CandidateRanker:
@@ -20,6 +21,7 @@ class CandidateRanker:
         self.jd = jd
         self.scorer = CandidateScorer(jd)
         self.behavior = BehaviorScorer()
+        self.semantic = SemanticMatcher()
 
     # --------------------------------------------------
 
@@ -47,16 +49,17 @@ class CandidateRanker:
         self,
         candidate: Dict
     ) -> float:
-
+        semantic = self.semantic.score(candidate)
         technical = (
+            semantic*0.40 +
 
-            self.scorer.score_title(candidate) * 0.25 +
+            self.scorer.score_title(candidate) * 0.15 +
 
-            self.scorer.score_experience(candidate) * 0.25 +
+            self.scorer.score_experience(candidate) * 0.10 +
 
-            self.scorer.score_career(candidate) * 0.30 +
+            self.scorer.score_career(candidate) * 0.20 +
 
-            self.scorer.score_skills(candidate) * 0.20
+            self.scorer.score_skills(candidate) * 0.15
 
         )
 

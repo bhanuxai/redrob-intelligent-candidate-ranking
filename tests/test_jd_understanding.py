@@ -3,13 +3,16 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from src.jd_parser import JDParser
 from src.jd_understanding import JDUnderstanding
-from src.config import RAW_DATA_DIR
+from src.config import JOB_DESCRIPTION_PATH
 
-jd = RAW_DATA_DIR / "job_description.docx"
+parser = JDParser()
 
-engine = JDUnderstanding()
+parsed_jd = parser.parse(JOB_DESCRIPTION_PATH)
 
-result = engine.understand(jd)
+understanding = JDUnderstanding(parsed_jd)
 
-print(result)
+requirements = understanding.get_requirements()
+
+print(requirements)

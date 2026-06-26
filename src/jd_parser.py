@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict
 
 from src.utils import clean_text
+from src.loader import DocumentLoader
 
 
 class JDParser:
@@ -20,33 +21,46 @@ class JDParser:
 
     def load(self, file_path):
 
-        self.raw_text = Path(file_path).read_text(
-            encoding="utf-8"
-        )
+        self.raw_text = DocumentLoader.load(file_path)
 
         self.text = clean_text(self.raw_text)
 
     # --------------------------------------------------
 
+    # --------------------------------------------------
+
     def extract_role(self):
 
-        match = re.search(
-            r"job description:\s*(.+)",
-            self.raw_text,
-            flags=re.IGNORECASE
-        )
+        patterns = [
 
-        if match:
-            return match.group(1).strip()
+            r"job description:\s*(.+)",
+
+            r"role:\s*(.+)",
+
+            r"position:\s*(.+)",
+
+            r"title:\s*(.+)"
+
+        ]
+
+        for pattern in patterns:
+
+            match = re.search(
+                pattern,
+                self.raw_text,
+                flags=re.IGNORECASE
+            )
+
+            if match:
+                return match.group(1).strip()
 
         return ""
-
     # --------------------------------------------------
 
     def extract_experience(self):
 
         match = re.search(
-            r"experience required:\s*(\d+)\s*[-–]\s*(\d+)",
+            r"experience required:\s*(\d+)\s*(?:-|–|to)\s*(\d+)",
             self.text
         )
 
@@ -63,7 +77,7 @@ class JDParser:
 
     def extract_locations(self):
 
-        locations = []
+        locations = set()
 
         for city in [
             "Pune",
@@ -78,9 +92,9 @@ class JDParser:
 
             if city.lower() in self.text:
 
-                locations.append(city)
+                locations.add(city)
 
-        return locations
+        return sorted(locations)
 
     # --------------------------------------------------
 
@@ -103,7 +117,99 @@ class JDParser:
                 return mode.title()
 
         return None
+    # --------------------------------------------------
 
+    def extract_notice_period(self):
+
+        if "30 days" in self.text:
+            return 30
+
+        if "60 days" in self.text:
+            return 60
+
+        if "90 days" in self.text:
+            return 90
+
+        return None
+    
+    # --------------------------------------------------
+
+    def extract_company_stage(self):
+
+        stages = [
+
+            "seed",
+
+            "series a",
+
+            "series b",
+
+            "series c"
+
+        ]
+
+        for stage in stages:
+
+            if stage in self.text:
+
+                return stage.title()
+
+        return None
+    
+    # --------------------------------------------------
+
+    def requires_production_ml(self):
+
+        keywords = [
+
+            "production",
+
+            "deployed",
+
+            "real-world",
+
+            "customers",
+
+            "latency",
+
+            "pipeline"
+
+        ]
+
+        return any(
+
+            word in self.text
+
+            for word in keywords
+
+        )
+# --------------------------------------------------
+
+    def requires_product_engineering(self):
+
+        keywords = [
+
+            "product",
+
+            "startup",
+
+            "ship",
+
+            "iterate",
+
+            "ownership",
+
+            "production"
+
+        ]
+
+        return any(
+
+            word in self.text
+
+            for word in keywords
+
+        )
     # --------------------------------------------------
 
     def extract_mandatory_skills(self):
@@ -118,7 +224,10 @@ class JDParser:
 
             "ranking",
 
+            "vector database",
             "vector databases",
+            "vector db",
+            "vector search",
 
             "pinecone",
 
@@ -167,12 +276,14 @@ class JDParser:
             "peft",
 
             "learning-to-rank",
+            "learning to rank",
 
             "xgboost",
 
             "distributed systems",
 
             "hr-tech",
+            "hr tech",
 
             "marketplace",
 
@@ -192,7 +303,7 @@ class JDParser:
 
     # --------------------------------------------------
 
-    def extract_negative_signals(self):
+    def extract_disqualifiers(self):
 
         negatives = [
 
@@ -268,11 +379,12 @@ class JDParser:
 
             "role": self.extract_role(),
 
-            "minimum_experience": minimum,
+            "experience": {
+                "minimum": minimum,
+                "maximum": maximum
+            },
 
-            "maximum_experience": maximum,
-
-            "locations": self.extract_locations(),
+            "preferred_locations": self.extract_locations(),
 
             "work_mode": self.extract_work_mode(),
 
@@ -280,8 +392,17 @@ class JDParser:
 
             "preferred_skills": self.extract_preferred_skills(),
 
-            "negative_signals": self.extract_negative_signals(),
+            "disqualifiers": self.extract_disqualifiers(),
 
             "behavior_requirements": self.extract_behavior_requirements(),
 
+            "preferred_notice_days": self.extract_notice_period(),
+
+            "company_stage": self.extract_company_stage(),
+
+            "requires_production_ml": self.requires_production_ml(),
+
+            "requires_product_engineering": self.requires_product_engineering()
+
         }
+    

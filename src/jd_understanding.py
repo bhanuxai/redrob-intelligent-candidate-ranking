@@ -1,116 +1,64 @@
 """
-JD Understanding Engine
+JD Understanding
 
-Converts raw JD text into structured information.
+Converts parsed JD into a normalized requirement object
+used by the ranking engine.
 """
 
-import re
-
-from src.loader import DocumentLoader
+from typing import Dict
 
 
 class JDUnderstanding:
 
-    def __init__(self):
-        self.text = ""
+    def __init__(self, jd: Dict):
+        self.jd = jd
 
-    def load(self, file_path):
-
-        self.text = DocumentLoader.load(file_path)
-
-    # -------------------------------------------------
-
-    def extract_role(self):
-
-        match = re.search(
-            r"Job Description:\s*(.+)",
-            self.text,
-            flags=re.IGNORECASE,
-        )
-
-        if match:
-            return match.group(1).strip()
-
-        return ""
-
-    # -------------------------------------------------
-
-    def extract_experience(self):
-
-        match = re.search(
-            r"Experience Required:\s*(\d+)\s*[–-]\s*(\d+)",
-            self.text,
-            flags=re.IGNORECASE,
-        )
-
-        if match:
-            return (
-                int(match.group(1)),
-                int(match.group(2))
-            )
-
-        return (None, None)
-
-    # -------------------------------------------------
-
-    def extract_work_mode(self):
-
-        text = self.text.lower()
-
-        if "hybrid" in text:
-            return "Hybrid"
-
-        if "remote" in text:
-            return "Remote"
-
-        if "onsite" in text:
-            return "Onsite"
-
-        return None
-
-    # -------------------------------------------------
-
-    def extract_locations(self):
-
-        cities = [
-            "Pune",
-            "Noida",
-            "Hyderabad",
-            "Mumbai",
-            "Delhi NCR",
-            "Bangalore",
-            "Bengaluru",
-            "Chennai",
-        ]
-
-        found = []
-
-        for city in cities:
-
-            if city.lower() in self.text.lower():
-                found.append(city)
-
-        return found
-
-    # -------------------------------------------------
-
-    def understand(self, file_path):
-
-        self.load(file_path)
-
-        exp_min, exp_max = self.extract_experience()
+    def get_requirements(self) -> Dict:
 
         return {
 
-            "role": self.extract_role(),
+            "role": self.jd.get("role"),
 
-            "experience": {
-                "minimum": exp_min,
-                "maximum": exp_max,
-            },
+            "experience": self.jd.get("experience"),
 
-            "locations": self.extract_locations(),
+            "mandatory_skills": self.jd.get(
+                "mandatory_skills", []
+            ),
 
-            "work_mode": self.extract_work_mode(),
+            "preferred_skills": self.jd.get(
+                "preferred_skills", []
+            ),
+
+            "preferred_locations": self.jd.get(
+                "preferred_locations", []
+            ),
+
+            "work_mode": self.jd.get(
+                "work_mode"
+            ),
+
+            "company_stage": self.jd.get(
+                "company_stage"
+            ),
+
+            "preferred_notice_days": self.jd.get(
+                "preferred_notice_days"
+            ),
+
+            "disqualifiers": self.jd.get(
+                "disqualifiers", []
+            ),
+
+            "behavior_requirements": self.jd.get(
+                "behavior_requirements", []
+            ),
+
+            "requires_production_ml": self.jd.get(
+                "requires_production_ml", False
+            ),
+
+            "requires_product_engineering": self.jd.get(
+                "requires_product_engineering", False
+            )
 
         }

@@ -28,7 +28,7 @@ TEST_DIR = BASE_DIR / "tests"
 # Dataset Files
 # =====================================================
 
-JOB_DESCRIPTION_PATH = RAW_DATA_DIR / "job_description.md"
+JOB_DESCRIPTION_PATH = RAW_DATA_DIR / "job_description.docx"
 
 CANDIDATE_FILE = RAW_DATA_DIR / "candidates.jsonl"
 
