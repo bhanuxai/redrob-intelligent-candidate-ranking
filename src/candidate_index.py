@@ -1,4 +1,4 @@
-import pickle
+import pickle, time
 
 from preprocess import (
     load_candidates,
@@ -32,6 +32,9 @@ def save_candidate_index(candidate_index, output_file):
     print(f"Candidate index saved to {output_file}")
 
 if __name__ == "__main__":
+    start = time.time()
     index = build_candidate_index()
     save_candidate_index(index, OUTPUT_FILE)
+    end = time.time()
     print(f"Total Candidates: {len(index)}")
+    print(f"Time taken: {round(end - start, 2)} seconds")
