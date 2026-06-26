@@ -35,6 +35,32 @@ def education_score(candidate):
         return 0.4
     return 0.2
 
+def career_gap_score(candidate):
+    career_history = candidate.get("career_history", [])
+    if not career_history:
+        return 0.5
+    legitimate_reasons = [
+        "upsc", "family", "health", "higher education",
+        "maternity", "study", "personal", "sabbatical"
+    ]
+    total_gap_months = 0
+    for job in career_history:
+        gap = job.get("gap_after_months", 0) or 0
+        reason = job.get("gap_reason", "").lower()
+        if any(r in reason for r in legitimate_reasons):
+            continue
+        total_gap_months += gap
+    if total_gap_months == 0:
+        return 1.0
+    elif total_gap_months <= 3:
+        return 0.9
+    elif total_gap_months <= 6:
+        return 0.8
+    elif total_gap_months <= 12:
+        return 0.7
+    else:
+        return 0.5
+
 def ai_skill_score(candidate):
     skills = get_skill_names(candidate)
     ai_count = count_ai_skills(skills)
@@ -82,6 +108,7 @@ def build_features(candidate):
         "ai_skill_score": ai_skill_score(candidate),
         "behavior_score": behavior_score(candidate),
         "honeypot_score": honeypot_score(candidate),
+        "career_gap_score": career_gap_score(candidate),  # ← new!
         "years_of_experience": get_years_of_experience(candidate),
         "education_tier": get_best_education_tier(candidate),
         "skills": get_skill_names(candidate)
