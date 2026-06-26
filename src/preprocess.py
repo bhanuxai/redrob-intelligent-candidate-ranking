@@ -33,8 +33,15 @@ DATA_FILE = Path(__file__).parent.parent / "data" / "candidates.jsonl"
 def load_candidates(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
+    skipped = 0
     for line in tqdm(lines, desc="Loading candidates"):
-        yield json.loads(line)
+        try:
+            yield json.loads(line)
+        except json.JSONDecodeError:
+            skipped += 1
+            continue
+    if skipped > 0:
+        print(f"Skipped {skipped} bad lines")
 
 def clean_candidate(candidate):
     candidate.setdefault("skills", [])
